@@ -283,38 +283,3 @@ H1_detection_rate
 H0_detection_rate
 Inconclusive_rate
 
-
-# H0 is simulated to be true
-
-results = replicate(iter, simul(  n = 50,
-                                  mean_hyp = 136,
-                                  mean_plb = 100,
-                                  mean_baseline = 70,
-                                  sd_outcome = 70,
-                                  SESOI = 15,
-                                  
-                                  sd_age = 3,
-                                  mean_age = 24,
-                                  sd_height = 10,
-                                  mean_height = 178,
-                                  sd_expected_CPT_pain = 2,
-                                  mean_expected_CPT_pain = 4,
-                                  sd_FPQ_total = 1,
-                                  mean_FPQ_total = 2,
-                                  
-                                  BF_threshold = 3,
-                                  AIC_threshold = 2,
-                                  
-                                  decision_criterion = "BF_lmBF" # either "CI_lme4", "AIC_lme4", "BF_lme4", "HDI_lmBF", "BF_lmBF"
-))
-
-
-
-H1_detection_rate = mean(results=="H1")
-H0_detection_rate = mean(results=="H0")
-Inconclusive_rate = mean(results=="inconclusive")
-
-H1_detection_rate
-H0_detection_rate
-Inconclusive_rate
-
