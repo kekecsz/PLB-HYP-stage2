@@ -77,14 +77,37 @@ data_pre[,"ID"] = 1:n
 data_long = data_pre %>% gather(key = condition, value = outcome, outcome_hyp:outcome_plb) %>% arrange(ID)
 data_long = data_long %>% 
   mutate(condition = as.factor(condition),
-         ID = as.factor(ID))
+         ID = as.factor(ID),
+         condition_hyp = recode(condition,
+                                "outcome_hyp" = 1,
+                                "outcome_plb" = 0))
 
 data_long
 
-mod_simple = lm(outcome ~ outcome_baseline + age + female + height + expected_CPT_pain + FPQ_total, data = data_long)
+mod_simple = lmer(outcome ~ outcome_baseline + age + female + height + expected_CPT_pain + FPQ_total + (1|ID), data = data_long)
 summary(mod_simple)
-mod_complex = lm(outcome ~ condition + outcome_baseline + age + female + height + expected_CPT_pain + FPQ_total, data = data_long)
+mod_complex = lmer(outcome ~ condition_hyp + outcome_baseline + age + female + height + expected_CPT_pain + FPQ_total + (1|ID), data = data_long)
 summary(mod_complex)
 
 AIC(mod_simple, mod_complex)[1,2]-AIC(mod_simple, mod_complex)[2,2]
 
+BF_comparison_lme4 = as.numeric(bayesfactor_models(mod_simple, mod_complex))[2]
+
+
+
+
+
+
+mod_simple_BF = lmBF(outcome ~ outcome_baseline + age + female + height + expected_CPT_pain + FPQ_total + ID, whichRandom="ID", data = data_long)
+mod_complex_BF = lmBF(outcome ~ condition_hyp + outcome_baseline + age + female + height + expected_CPT_pain + FPQ_total + ID, whichRandom="ID", data = data_long)
+summary(mod_simple_BF)
+summary(mod_complex_BF)
+
+BF_comparison_lmBF = extractBF(mod_complex_BF/mod_simple_BF)[1,1]
+
+
+mod_post = posterior(mod_complex_BF, iterations = 1000)
+summary(mod_post)
+
+
+anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID")
